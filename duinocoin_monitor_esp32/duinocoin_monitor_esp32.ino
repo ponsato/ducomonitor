@@ -241,6 +241,9 @@ void loop() {
     http.begin(serverName + ducouser, root_ca);
     int httpCode = http.GET();
     display.clear();
+    while(httpCode < 0) {
+      httpCode = http.GET();
+    }
     if (httpCode > 0) {
       DynamicJsonDocument doc(9216);
       String jsonbalance = http.getString();
@@ -257,7 +260,6 @@ void loop() {
         miners++;
       }
       Serial.println("Miners: " + String(miners));
-      
       doc.clear();
     } else {
       ducosmem = "-";
