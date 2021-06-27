@@ -8,5 +8,5 @@ Data is updated every 15 seconds, except for the daily estimate which is updated
 Pin layout and .stl files for printing the box are included.
 
 ## Hardware
-- ESP32/ESP8266 existe un archivo diferente para cada uno
-- SSD1306 OLED I2C 1.3"/0.96" (en la pantalla de 1.3", GND y VCC están invertidos con respecto a 0.96" El esquema de pines está hecho para 0.96")
+- ESP32/ESP8266 there is a separate file for each
+- SSD1306 OLED I2C 1.3"/0.96" (on the 1.3" display, GND and VCC are reversed with respect to 0.96". The pin layout is made for 0.96").
