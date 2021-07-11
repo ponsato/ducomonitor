@@ -10,6 +10,7 @@ const char* host = "server.duinocoin.com";
 const int httpsPort = 443;
 const char* fingerprint = "72:D5:D1:06:8B:FA:8D:B3:0F:AF:3A:26:7C:F5:32:A2:A1:81:2A:28";
 String url = "/users/" + String(ducouser);
+const char* hostPrice = "server.duinocoin.com";
 String urlPrice = "/api.json";
 
 #define SDA_PIN 21
@@ -84,8 +85,11 @@ void loop() {
       }
     }
     String jsonbalance = client.readStringUntil('\n');
-    DynamicJsonDocument doc(3072);
-    DeserializationError error = deserializeJson(doc, jsonbalance);
+    StaticJsonDocument<192> filter;
+    filter["result"]["balance"]["balance"] = true;
+    filter["result"]["miners"][0]["threadid"] = true;
+    DynamicJsonDocument doc(2048);
+    DeserializationError error = deserializeJson(doc, jsonbalance, DeserializationOption::Filter(filter));
     if (error) {
       Serial.print(F("deserializeJson() failed: "));
       Serial.println(error.f_str());
@@ -114,7 +118,7 @@ void loop() {
       return;
     }
     client.print(String("GET ") + urlPrice + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" +
+               "Host: " + hostPrice + "\r\n" +
                "Connection: close\r\n\r\n");
     while (client.connected()) {
       String line = client.readStringUntil('\n');
@@ -124,16 +128,21 @@ void loop() {
       }
     }
     String jsonprice = client.readString();
-    DeserializationError errorPrice = deserializeJson(doc, jsonprice);
+    Serial.println(jsonprice);
+    StaticJsonDocument<128> filterPrice;
+    filterPrice["Duco price"] = true;
+    DeserializationError errorPrice = deserializeJson(doc, jsonprice, DeserializationOption::Filter(filterPrice));
     if (errorPrice) {
       Serial.print(F("deserializeJson() failed: "));
       Serial.println(errorPrice.f_str());
-      return;
+      price = '-';
+    } else {
+      JsonObject pricedoc = doc.as<JsonObject>();
+      String euros = pricedoc["Duco price"];
+      price = euros;
+      Serial.println("Price: " + String(euros));
     }
-    JsonObject pricedoc = doc.as<JsonObject>();
-    String euros = pricedoc["Duco price"];
-    price = euros;
-    Serial.println("Price: " + String(euros));
+    
     doc.clear();
     client.stop();
 
